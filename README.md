@@ -12,9 +12,15 @@ Walking, running, jumpung and swimming now will give you Training Points in the 
 
 There are also caps to this way of leveling, attempting to make the mod less of a cheese factory and closer to a flavor thing with a bit of functionality. At the end of the day, wearing weighs in the shape of armor will only get you so far in combat.
 
+> But doesn't it make Unarmored even less powerful?
+
+This is in no means an overhaul, so I don't consider covering everything here - only those parts of the game that make sense to me. Besides, I think it should instead be completely overhauled with [Evasion](https://www.nexusmods.com/morrowind/mods/58590) instead of armor rating in mind.
+
 ## Compatibility
 
-I would be genuinely surprised if you could find a compatibility issue with this mod.
+Might have issues with mods adding *new* movement animations, since they will be ignored by the mod. I don't know of any conflicts yet, but this is easily fixed anyway.
+
+Compatible with [RUN!](https://modding-openmw.gitlab.io/RUN/).
 
 Safe to install, update or uninstall the mod mid-playthrough.
 
