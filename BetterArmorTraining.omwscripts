@@ -1,0 +1,4 @@
+MENU: scripts/BetterArmorTraining/utils/sorresRenderers.lua
+
+MENU: scripts/BetterArmorTraining/settingsMenu.lua
+PLAYER: scripts/BetterArmorTraining/player.lua

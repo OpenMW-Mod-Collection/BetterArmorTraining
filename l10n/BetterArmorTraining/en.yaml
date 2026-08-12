@@ -1,0 +1,63 @@
+page_name: Better Armor Training
+page_description: Train your armor skills just by wearing it.
+
+settings_groupName: Settings
+settings_groupDesc: |
+  How the mod works under the hood:
+  1. By moving you get Training Points based on played animations
+  2. After accumualting enough Training Points, you get a pool of XP
+  3. XP pool gets divided between armor slots and assigned an armor type
+  4. Armor type XP gets global XP multiplier and caps (if needed) applied
+  5. And only then you get XP granted to yourself
+trainingPointsFor_name: Training Points for...
+trainingPointsFor_desc: |
+  Training Points are granted each time these animations play.
+
+  Note: spamming jump doesn't let the animation to finish. Check the debug prints for details.
+trainingPointsFor_walking: Walking
+trainingPointsFor_running: Running
+trainingPointsFor_jumping: Jumping
+trainingPointsFor_swimmingSlow: Slow Swimming
+trainingPointsFor_swimmingFast: Fast Swimming
+trainingPointsPerXpPayout_name: Training Points Per XP Payout
+trainingPointsPerXpPayout_desc: |
+  How many Training Points you need to get the XP Payout.
+
+  Equipped armor is checked only during the payout.
+xpPayout_name: XP Payout Size
+xpPayout_desc: How much XP you will get, across all your equipped armor classes.
+xpDivision_name: XP Fraction Per Armor Slot
+xpDivision_desc: |
+  Total XP Payout gets divided across all armor slots based on these fractions.
+
+  Default values are based on vanilla armor rating calculations minus shields.
+xpDivision_chest: Chest
+xpDivision_shield: Shield
+xpDivision_head: Head
+xpDivision_legs: Legs
+xpDivision_feet: Feet
+xpDivision_rShoulder: Right Shoulder
+xpDivision_lShoulder: Left Shoulder
+xpDivision_rHand: Right Hand
+xpDivision_lHand: Left Hand
+armorTypeXpMult_name: Armor Type XP Mult
+armorTypeXpMult_desc: Set it to 0 to disable XP gain for armor type.
+armorTypeXpMult_heavy: Heavy
+armorTypeXpMult_medium: Medium
+armorTypeXpMult_light: Light
+armorTypeXpMult_unarmored: Unarmored
+softCap_name: Soft Level Cap
+softCap_desc: |
+  Armor skills past this level will gradually get less XP.
+
+  XP falloff is linear: for every excess skill level you will get (Excess * Falloff) percent less XP for it.
+softCap_capLvl: Starts at Level
+softCap_falloff: Falloff per Level (%)
+softCap_maxReduction: Max XP Reduction (%)
+hardCap_name: Hard Level Cap
+hardCap_desc: >
+  Armor skills past this level won't be affected by the mod.
+  Overrides the soft cap.
+log_name: Log to Console...
+log_movement: Training Points
+log_xpGain: XP Gain
