@@ -10,45 +10,47 @@ local core = require("openmw.core")
 local settingsCache = require("scripts.BetterArmorTraining.utils.settingsCache")
 
 local settings = settingsCache.new(storage.playerSection("SettingssBetterArmorTraining"), async)
+local animGroupType = {
+    walking      = { stopKey = "loop stop", pointsKey = "walking" },
+    running      = { stopKey = "loop stop", pointsKey = "running" },
+    jumping      = { stopKey = "start", pointsKey = "jumping" },
+    swimmingSlow = { stopKey = "loop stop", pointsKey = "swimmingSlow" },
+    swimmingFast = { stopKey = "loop stop", pointsKey = "swimmingFast" },
+}
 local animGroupsData = {
-    -- walking
-    walkforward     = { stopKey = "loop stop", points = settings.trainingPointsFor.walking },
-    walkback        = { stopKey = "loop stop", points = settings.trainingPointsFor.walking },
-    walkleft        = { stopKey = "loop stop", points = settings.trainingPointsFor.walking },
-    walkright       = { stopKey = "loop stop", points = settings.trainingPointsFor.walking },
-    -- running
-    runforward      = { stopKey = "loop stop", points = settings.trainingPointsFor.running },
-    runback         = { stopKey = "loop stop", points = settings.trainingPointsFor.running },
-    runleft         = { stopKey = "loop stop", points = settings.trainingPointsFor.running },
-    runright        = { stopKey = "loop stop", points = settings.trainingPointsFor.running },
-    -- jumping
-    jump            = { stopKey = "stop", points = settings.trainingPointsFor.jumping },
-    -- swimming slow
-    swimwalkforward = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingSlow },
-    swimwalkback    = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingSlow },
-    swimwalkleft    = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingSlow },
-    swimwalkright   = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingSlow },
-    -- swimming fast
-    swimrunforward  = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingFast },
-    swimrunback     = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingFast },
-    swimrunleft     = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingFast },
-    swimrunright    = { stopKey = "loop stop", points = settings.trainingPointsFor.swimmingFast },
+    walkforward     = animGroupType.walking,
+    walkback        = animGroupType.walking,
+    walkleft        = animGroupType.walking,
+    walkright       = animGroupType.walking,
+
+    runforward      = animGroupType.running,
+    runback         = animGroupType.running,
+    runleft         = animGroupType.running,
+    runright        = animGroupType.running,
+
+    jump            = animGroupType.jumping,
+
+    swimwalkforward = animGroupType.swimmingSlow,
+    swimwalkback    = animGroupType.swimmingSlow,
+    swimwalkleft    = animGroupType.swimmingSlow,
+    swimwalkright   = animGroupType.swimmingSlow,
+
+    swimrunforward  = animGroupType.swimmingFast,
+    swimrunback     = animGroupType.swimmingFast,
+    swimrunleft     = animGroupType.swimmingFast,
+    swimrunright    = animGroupType.swimmingFast,
 }
 local eqSlot = types.Actor.EQUIPMENT_SLOT
-local fractionSum = 0
-for _, fraction in pairs(settings.xpDivision) do
-    fractionSum = fractionSum + fraction
-end
-local armorSlotToFraction = {
-    [eqSlot.Cuirass]       = settings.xpDivision.chest / fractionSum,
-    [eqSlot.CarriedLeft]   = settings.xpDivision.shield / fractionSum,
-    [eqSlot.Helmet]        = settings.xpDivision.head / fractionSum,
-    [eqSlot.Greaves]       = settings.xpDivision.legs / fractionSum,
-    [eqSlot.Boots]         = settings.xpDivision.feet / fractionSum,
-    [eqSlot.RightPauldron] = settings.xpDivision.rShoulder / fractionSum,
-    [eqSlot.LeftPauldron]  = settings.xpDivision.lShoulder / fractionSum,
-    [eqSlot.RightGauntlet] = settings.xpDivision.rHand / fractionSum,
-    [eqSlot.LeftGauntlet]  = settings.xpDivision.lHand / fractionSum,
+local armorSlotToFractionKeys = {
+    [eqSlot.Cuirass]       = "chest",
+    [eqSlot.CarriedLeft]   = "shield",
+    [eqSlot.Helmet]        = "head",
+    [eqSlot.Greaves]       = "legs",
+    [eqSlot.Boots]         = "feet",
+    [eqSlot.RightPauldron] = "rShoulder",
+    [eqSlot.LeftPauldron]  = "lShoulder",
+    [eqSlot.RightGauntlet] = "rHand",
+    [eqSlot.LeftGauntlet]  = "lHand",
 }
 local armorType = types.Armor.TYPE
 local armorTypeGMSTs = {
@@ -64,29 +66,17 @@ local armorTypeGMSTs = {
     [armorType.RBracer]   = core.getGMST("iGauntletWeight"),
     [armorType.LBracer]   = core.getGMST("iGauntletWeight"),
 }
-local armorClassesEnum = {
-    unarmored = "unarmored",
-    light     = "lightarmor",
-    medium    = "mediumarmor",
-    heavy     = "heavyarmor",
-}
-local armorClassToSkillId = {
-    [armorClassesEnum.unarmored] = "unarmored",
-    [armorClassesEnum.light]     = "lightarmor",
-    [armorClassesEnum.medium]    = "mediumarmor",
-    [armorClassesEnum.heavy]     = "heavyarmor",
+local armorClasses = {
+    unarmored   = "unarmored",
+    lightarmor  = "lightarmor",
+    mediumarmor = "mediumarmor",
+    heavyarmor  = "heavyarmor",
 }
 local armorClassToSkillHandler = {
-    [armorClassesEnum.unarmored] = types.Player.stats.skills.unarmored(self),
-    [armorClassesEnum.light]     = types.Player.stats.skills.lightarmor(self),
-    [armorClassesEnum.medium]    = types.Player.stats.skills.mediumarmor(self),
-    [armorClassesEnum.heavy]     = types.Player.stats.skills.heavyarmor(self),
-}
-local armorClassXPMults = {
-    [armorClassesEnum.unarmored] = settings.armorTypeXpMult.unarmored,
-    [armorClassesEnum.light]     = settings.armorTypeXpMult.light,
-    [armorClassesEnum.medium]    = settings.armorTypeXpMult.medium,
-    [armorClassesEnum.heavy]     = settings.armorTypeXpMult.heavy,
+    [armorClasses.unarmored]   = types.Player.stats.skills.unarmored(self),
+    [armorClasses.lightarmor]  = types.Player.stats.skills.lightarmor(self),
+    [armorClasses.mediumarmor] = types.Player.stats.skills.mediumarmor(self),
+    [armorClasses.heavyarmor]  = types.Player.stats.skills.heavyarmor(self),
 }
 local fLightMaxMod = core.getGMST("fLightMaxMod")
 local fMedMaxMod = core.getGMST("fMedMaxMod")
@@ -99,13 +89,13 @@ local function getArmorWeightClass(record)
     local referenceWeight = armorTypeGMSTs[record.type]
 
     if record.weight == 0 then
-        return armorClassesEnum.unarmored
+        return armorClasses.unarmored
     elseif record.weight <= referenceWeight * fLightMaxMod + epsilon then
-        return armorClassesEnum.light
+        return armorClasses.lightarmor
     elseif record.weight <= referenceWeight * fMedMaxMod + epsilon then
-        return armorClassesEnum.medium
+        return armorClasses.mediumarmor
     else
-        return armorClassesEnum.heavy
+        return armorClasses.heavyarmor
     end
 end
 
@@ -131,19 +121,25 @@ end
 
 local function grantXP()
     local xpByArmorClass = {
-        [armorClassesEnum.unarmored] = 0,
-        [armorClassesEnum.light]     = 0,
-        [armorClassesEnum.medium]    = 0,
-        [armorClassesEnum.heavy]     = 0,
+        [armorClasses.unarmored]   = 0,
+        [armorClasses.lightarmor]  = 0,
+        [armorClasses.mediumarmor] = 0,
+        [armorClasses.heavyarmor]  = 0,
     }
     local equipment = types.Actor.getEquipment(self) or {}
 
-    for slotName, fraction in pairs(armorSlotToFraction) do
+    local fractionSum = 0
+    for _, fraction in pairs(settings.xpDivision) do
+        fractionSum = fractionSum + fraction
+    end
+
+    for slotName, fractionKey in pairs(armorSlotToFractionKeys) do
         local item = equipment[slotName]
         if item then
             local weightClass = types.Clothing.objectIsInstance(item)
-                and armorClassesEnum.unarmored
+                and armorClasses.unarmored
                 or getArmorWeightClass(item.type.records[item.recordId])
+            local fraction = settings.xpDivision[fractionKey] / fractionSum
             local xpForSlot = settings.xpPayout * fraction
             xpByArmorClass[weightClass] = xpByArmorClass[weightClass] + xpForSlot
         end
@@ -151,12 +147,12 @@ local function grantXP()
 
     for armorClass, rawXp in pairs(xpByArmorClass) do
         local skill = armorClassToSkillHandler[armorClass]
-        local globalMult = armorClassXPMults[armorClass]
+        local globalMult = settings.armorTypeXpMult[armorClass]
         local finalXp = applyCaps(rawXp, skill) * globalMult
 
         if finalXp > 0 then
-            local skillId = armorClassToSkillId[armorClass]
-            I.SkillProgression.skillUsed(skillId, { skillGain = finalXp/10 })
+            local skillId = armorClasses[armorClass]
+            I.SkillProgression.skillUsed(skillId, { skillGain = finalXp / 10 }) -- TODO why /10 ???
 
             if settings.log.xpGain then
                 print(("[BetterArmorTraining] +%.3f xp -> %s"):format(finalXp, skillId))
@@ -171,20 +167,17 @@ local function grantTrainingPoints(groupname, key)
     local isLevitating = selfEffects:getEffect(core.magic.EFFECT_TYPE.Levitate).magnitude > 0
     if isLevitating then return end
 
-    trainingPoints = trainingPoints + animGroupsData[groupname].points
+    local tpBonus = settings.trainingPointsFor[animGroupsData[groupname].pointsKey]
+    trainingPoints = trainingPoints + tpBonus
 
     if trainingPoints > settings.trainingPointsPerXpPayout then
         trainingPoints = trainingPoints - settings.trainingPointsPerXpPayout
         grantXP()
     end
 
-    -- print(storage.playerSection("SettingssBetterArmorTraining"):get("armorTypeXpMult").unarmored)
-    -- print(settings.armorTypeXpMult.unarmored)
-
     if settings.log.movement then
         print(("[BetterArmorTraining] +%d training points -> %d"):format(
-            animGroupsData[groupname].points,
-            trainingPoints
+            tpBonus, trainingPoints
         ))
     end
 end
@@ -203,7 +196,7 @@ end
 
 local function onSave()
     return {
-        trainingPoints = trainingPoints
+        trainingPoints = trainingPoints,
     }
 end
 

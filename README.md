@@ -14,7 +14,7 @@ There are also caps to this way of leveling, attempting to make the mod less of 
 
 > But doesn't it make Unarmored even less powerful?
 
-This is in no means an overhaul, so I don't consider covering everything here - only those parts of the game that make sense to me. Besides, I think it should instead be completely overhauled with [Evasion](https://www.nexusmods.com/morrowind/mods/58590) instead of armor rating in mind.
+This is in no means an overhaul, so I don't consider covering everything here - only those parts of the game that would make sense. Besides, imho it should instead be completely overhauled with [Evasion](https://www.nexusmods.com/morrowind/mods/58590) mechanic of some kind instead of armor rating in mind.
 
 ## Compatibility
 

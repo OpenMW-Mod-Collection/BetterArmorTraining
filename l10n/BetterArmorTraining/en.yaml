@@ -10,10 +10,7 @@ settings_groupDesc: |
   4. Armor type XP gets global XP multiplier and caps (if needed) applied
   5. And only then you get XP granted to yourself
 trainingPointsFor_name: Training Points for...
-trainingPointsFor_desc: |
-  Training Points are granted each time these animations play.
-
-  Note: spamming jump doesn't let the animation to finish. Check the debug prints for details.
+trainingPointsFor_desc: Training Points are granted each time these animations play.
 trainingPointsFor_walking: Walking
 trainingPointsFor_running: Running
 trainingPointsFor_jumping: Jumping
