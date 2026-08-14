@@ -8,7 +8,7 @@ I won't be the first to admit that armor leveling is slow in this game, neither 
 
 ## Features
 
-Walking, running, jumpung and swimming now will give you Training Points in the background. After reaching a Training Points milestone, you will receive a batch of experience, distributed between your armor skills, based on what gear you're wearing.
+Walking, running, jumping and swimming now will give you Training Points in the background. After reaching a Training Points milestone, you will receive a batch of experience, distributed between your armor skills, based on what gear you're wearing.
 
 There are also caps to this way of leveling, attempting to make the mod less of a cheese factory and closer to a flavor thing with a bit of functionality. At the end of the day, wearing weighs in the shape of armor will only get you so far in combat.
 
