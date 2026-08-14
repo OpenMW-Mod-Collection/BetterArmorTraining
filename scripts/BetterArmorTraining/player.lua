@@ -1,4 +1,4 @@
----@diagnostic disable: missing-parameter, param-type-mismatch
+---@diagnostic disable: missing-parameter, param-type-mismatch, need-check-nil
 ---@omw-context player
 local storage = require('openmw.storage')
 local self = require("openmw.self")
@@ -6,13 +6,14 @@ local I = require("openmw.interfaces")
 local async = require("openmw.async")
 local types = require("openmw.types")
 local core = require("openmw.core")
+local ambient = require("openmw.ambient")
 
 local settingsCache = require("scripts.BetterArmorTraining.utils.settingsCache")
 
 local settings = settingsCache.new(storage.playerSection("SettingssBetterArmorTraining"), async)
 local animGroupType = {
-    walking      = { stopKey = "loop stop", pointsKey = "walking" },
-    running      = { stopKey = "loop stop", pointsKey = "running" },
+    walking      = { stopKey = "loop stop", pointsKey = "walking", waterKey = "swimmingSlow" },
+    running      = { stopKey = "loop stop", pointsKey = "running", waterKey = "swimmingFast" },
     jumping      = { stopKey = "start", pointsKey = "jumping" },
     swimmingSlow = { stopKey = "loop stop", pointsKey = "swimmingSlow" },
     swimmingFast = { stopKey = "loop stop", pointsKey = "swimmingFast" },
@@ -52,20 +53,6 @@ local armorSlotToFractionKeys = {
     [eqSlot.RightGauntlet] = "rHand",
     [eqSlot.LeftGauntlet]  = "lHand",
 }
-local armorType = types.Armor.TYPE
-local armorTypeGMSTs = {
-    [armorType.Cuirass]   = core.getGMST("iCuirassWeight"),
-    [armorType.Shield]    = core.getGMST("iShieldWeight"),
-    [armorType.Helmet]    = core.getGMST("iHelmWeight"),
-    [armorType.Greaves]   = core.getGMST("iGreavesWeight"),
-    [armorType.Boots]     = core.getGMST("iBootsWeight"),
-    [armorType.RPauldron] = core.getGMST("iPauldronWeight"),
-    [armorType.LPauldron] = core.getGMST("iPauldronWeight"),
-    [armorType.RGauntlet] = core.getGMST("iGauntletWeight"),
-    [armorType.LGauntlet] = core.getGMST("iGauntletWeight"),
-    [armorType.RBracer]   = core.getGMST("iGauntletWeight"),
-    [armorType.LBracer]   = core.getGMST("iGauntletWeight"),
-}
 local armorClasses = {
     unarmored   = "unarmored",
     lightarmor  = "lightarmor",
@@ -78,26 +65,20 @@ local armorClassToSkillHandler = {
     [armorClasses.mediumarmor] = types.Player.stats.skills.mediumarmor(self),
     [armorClasses.heavyarmor]  = types.Player.stats.skills.heavyarmor(self),
 }
-local fLightMaxMod = core.getGMST("fLightMaxMod")
-local fMedMaxMod = core.getGMST("fMedMaxMod")
-local epsilon = 5e-4
+local armorClassToName = {
+    [armorClasses.unarmored]   = core.getGMST("sSkillUnarmored"),
+    [armorClasses.lightarmor]  = core.getGMST("sSkillLightarmor"),
+    [armorClasses.mediumarmor] = core.getGMST("sSkillMediumarmor"),
+    [armorClasses.heavyarmor]  = core.getGMST("sSkillHeavyarmor"),
+}
+local skillUpMessage = core.getGMST("sNotifyMessage39")
 local selfEffects = types.Actor.activeEffects(self)
+local animTimestamps = {}
+for animType, _ in pairs(animGroupType) do
+    animTimestamps[animType] = 0
+end
 
 local trainingPoints = 0
-
-local function getArmorWeightClass(record)
-    local referenceWeight = armorTypeGMSTs[record.type]
-
-    if record.weight == 0 then
-        return armorClasses.unarmored
-    elseif record.weight <= referenceWeight * fLightMaxMod + epsilon then
-        return armorClasses.lightarmor
-    elseif record.weight <= referenceWeight * fMedMaxMod + epsilon then
-        return armorClasses.mediumarmor
-    else
-        return armorClasses.heavyarmor
-    end
-end
 
 local function applyCaps(rawXp, skill)
     if rawXp <= 0 then return 0 end
@@ -119,6 +100,21 @@ local function applyCaps(rawXp, skill)
     return rawXp * multiplier
 end
 
+local function increaseSkillBrute(skill, skillName, normalizedXp)
+    if skill.progress + normalizedXp < 1 then
+        skill.progress = skill.progress + normalizedXp
+        return
+    end
+
+    skill.base = skill.base + 1
+    skill.progress = settings.carryXpExcess
+        and 1 - skill.progress + normalizedXp
+        or 0
+
+    self:sendEvent("ShowMessage", { message = skillUpMessage:format(skillName, skill.base) })
+    ambient.playSound("skillraise")
+end
+
 local function grantXP()
     local xpByArmorClass = {
         [armorClasses.unarmored]   = 0,
@@ -135,14 +131,12 @@ local function grantXP()
 
     for slotName, fractionKey in pairs(armorSlotToFractionKeys) do
         local item = equipment[slotName]
-        if item then
-            local weightClass = types.Clothing.objectIsInstance(item)
-                and armorClasses.unarmored
-                or getArmorWeightClass(item.type.records[item.recordId])
-            local fraction = settings.xpDivision[fractionKey] / fractionSum
-            local xpForSlot = settings.xpPayout * fraction
-            xpByArmorClass[weightClass] = xpByArmorClass[weightClass] + xpForSlot
-        end
+        local weightClass = item and types.Armor.objectIsInstance(item)
+            and I.Combat.getArmorSkill(item)
+            or armorClasses.unarmored
+        local fraction = settings.xpDivision[fractionKey] / fractionSum
+        local xpForSlot = settings.xpPayout * fraction
+        xpByArmorClass[weightClass] = xpByArmorClass[weightClass] + xpForSlot
     end
 
     for armorClass, rawXp in pairs(xpByArmorClass) do
@@ -151,11 +145,21 @@ local function grantXP()
         local finalXp = applyCaps(rawXp, skill) * globalMult
 
         if finalXp > 0 then
+            local lastLevel = skill.base
+            local lastXp = skill.progress
             local skillId = armorClasses[armorClass]
-            I.SkillProgression.skillUsed(skillId, { skillGain = finalXp / 10 }) -- TODO why /10 ???
+
+            if settings.grantXpDirectly then
+                increaseSkillBrute(skill, armorClassToName[armorClass], finalXp / 100)
+            else
+                I.SkillProgression.skillUsed(skillId, { skillGain = finalXp })
+            end
 
             if settings.log.xpGain then
-                print(("[BetterArmorTraining] +%.3f xp -> %s"):format(finalXp, skillId))
+                local finalActualXp = lastLevel == skill.base
+                    and skill.progress - lastXp
+                    or 1 - lastXp + skill.progress
+                print(("[BetterArmorTraining] +%.3f xp -> %s"):format(finalActualXp * 100, skillId))
             end
         end
     end
@@ -165,17 +169,34 @@ local function grantTrainingPoints(groupname, key)
     if animGroupsData[groupname].stopKey ~= key then return end
 
     local isLevitating = selfEffects:getEffect(core.magic.EFFECT_TYPE.Levitate).magnitude > 0
-    if isLevitating then return end
+    if settings.skipIfLevitating and isLevitating then return end
 
-    local tpBonus = settings.trainingPointsFor[animGroupsData[groupname].pointsKey]
+    local animGroupData = animGroupsData[groupname]
+    local animType = animGroupData.waterKey and types.Player.isSwimming(self)
+        and animGroupData.waterKey
+        or animGroupsData[groupname].pointsKey
+
+    local notAvailableUntil = animTimestamps[animType] + settings.cooldown[animType]
+    local now = core.getSimulationTime()
+    if notAvailableUntil > now then
+        if settings.log.cooldown then
+            print(("[BetterArmorTraining] '%s' will be available in %.2fs"):format(
+                animType, notAvailableUntil - now
+            ))
+        end
+        return
+    end
+
+    animTimestamps[animType] = now
+    local tpBonus = settings.trainingPointsFor[animType]
     trainingPoints = trainingPoints + tpBonus
 
-    if trainingPoints > settings.trainingPointsPerXpPayout then
+    if trainingPoints >= settings.trainingPointsPerXpPayout then
         trainingPoints = trainingPoints - settings.trainingPointsPerXpPayout
         grantXP()
     end
 
-    if settings.log.movement then
+    if settings.log.trainingPoints then
         print(("[BetterArmorTraining] +%d training points -> %d"):format(
             tpBonus, trainingPoints
         ))
@@ -197,6 +218,7 @@ end
 local function onSave()
     return {
         trainingPoints = trainingPoints,
+        animTimestamps = animTimestamps
     }
 end
 

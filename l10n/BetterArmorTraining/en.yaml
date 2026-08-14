@@ -16,6 +16,14 @@ trainingPointsFor_running: Running
 trainingPointsFor_jumping: Jumping
 trainingPointsFor_swimmingSlow: Slow Swimming
 trainingPointsFor_swimmingFast: Fast Swimming
+cooldown_name: Cooldown for Actions
+cooldown_desc: How often you're allowed to get Training Points for certain actions
+cooldown_walking: Walking (sec)
+cooldown_running: Running (sec)
+cooldown_jumping: Jumping (sec)
+cooldown_swimmingSlow: Slow Swimming (sec)
+cooldown_swimmingFast: Fast Swimming (sec)
+skipIfLevitating_name: No Training Points While Levitating
 trainingPointsPerXpPayout_name: Training Points Per XP Payout
 trainingPointsPerXpPayout_desc: |
   How many Training Points you need to get the XP Payout.
@@ -23,6 +31,16 @@ trainingPointsPerXpPayout_desc: |
   Equipped armor is checked only during the payout.
 xpPayout_name: XP Payout Size
 xpPayout_desc: How much XP you will get, across all your equipped armor classes.
+grantXpDirectly_name: Grant XP Directly
+grantXpDirectly_desc: |
+  If enabled, xp will be given directly, avoiding all other handlers, including modded ones. Predictable.
+
+  If disabled, xp will be given via an interface, applying all the vanilla and modded multipliers: character specialization bonuses, multipliers from other mods and other interactions. Unpredictable.
+carryXpExcess_name: Carry XP Excess
+carryXpExcess_desc: |
+  Has an effect only if "Grant XP Directly" is enabled.
+
+  When enabled, excess XP from leveling the skill up will be carried over.
 xpDivision_name: XP Fraction Per Armor Slot
 xpDivision_desc: |
   Total XP Payout gets divided across all armor slots based on these fractions.
@@ -56,5 +74,6 @@ hardCap_desc: >
   Armor skills past this level won't be affected by the mod.
   Overrides the soft cap.
 log_name: Log to Console...
-log_movement: Training Points
+log_trainingPoints: Training Points
+log_cooldown: Cooldown
 log_xpGain: XP Gain
