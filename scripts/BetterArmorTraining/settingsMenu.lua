@@ -59,7 +59,7 @@ I.Settings.registerGroup {
             default = {
                 walking      = 0.2,
                 running      = 0.2,
-                jumping      = 0.5,
+                jumping      = 1,
                 swimmingSlow = 0.2,
                 swimmingFast = 0.2,
             },

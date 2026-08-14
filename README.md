@@ -2,7 +2,7 @@
 
 Get accustomed to armor by moving around in it. It's heavy, after all.
 
-*For MWSE alternative check [Armor Training](https://www.nexusmods.com/morrowind/mods/51741) by Vengyre*
+*For MWSE alternative check [Armor Training](https://www.nexusmods.com/morrowind/mods/51741) by Vengyre.*
 
 I won't be the first to admit that armor leveling is slow in this game, neither I will be the last. But hear me out: armor isn't a shirt - it's heavy as hell. And running around in it should have some effect on your physique.
 
@@ -18,7 +18,7 @@ This is in no means an overhaul, so I don't consider covering everything here - 
 
 And besides, option to train Unarmored the same way is also present. It's just disabled by default.
 
-> Haven't there already been a such mod?
+> Hasn't there already been a such mod?
 
 While there is a similar [Armor Training (OpenMW)](https://www.nexusmods.com/morrowind/mods/59394) mod, I figured I could improve upon it. The main differences are:
 
@@ -42,5 +42,5 @@ Safe to install, update and uninstall mid-playthrough.
 
 **Sosnoviy Bor** - Author  
 **Vengyre** - Initial idea ([Armor Training](https://www.nexusmods.com/morrowind/mods/51741))  
-**RageFiasco** - Guy, who beat me to the idea ([Armor Training (OpenMW)](https://www.nexusmods.com/morrowind/mods/59394)) and reminded me that I wanted to play this mod too  
+**RageFiasco** - The guy who beat me to the idea ([Armor Training (OpenMW)](https://www.nexusmods.com/morrowind/mods/59394)) and reminded me that I wanted to play this mod too  
 **SorreFalcon** - Custom settings renderers ([Sorre's Custom Renderers](https://www.nexusmods.com/morrowind/mods/59808))
