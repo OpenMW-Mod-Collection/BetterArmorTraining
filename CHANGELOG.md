@@ -2,7 +2,7 @@
 
 ## 1.0.1
 
-- Updated settings rendererss
+- Updated settings renderers
 
 ## 1.0
 
