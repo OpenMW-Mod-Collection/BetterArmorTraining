@@ -100,19 +100,12 @@ local function applyCaps(rawXp, skill)
     return rawXp * multiplier
 end
 
-local function increaseSkillBrute(skill, skillName, normalizedXp)
+local function increaseSkillBrute(skill, skillId, normalizedXp)
     if skill.progress + normalizedXp < 1 then
         skill.progress = skill.progress + normalizedXp
-        return
+    else
+        I.SkillProgression.skillLevelUp(skillId, "usage")
     end
-
-    skill.base = skill.base + 1
-    skill.progress = settings.carryXpExcess
-        and 1 - skill.progress + normalizedXp
-        or 0
-
-    self:sendEvent("ShowMessage", { message = skillUpMessage:format(skillName, skill.base) })
-    ambient.playSound("skillraise")
 end
 
 local function grantXP()
@@ -149,10 +142,11 @@ local function grantXP()
             local lastXp = skill.progress
             local skillId = armorClasses[armorClass]
 
-            if settings.grantXpDirectly then
-                increaseSkillBrute(skill, armorClassToName[armorClass], finalXp / 100)
+            local normalizedXp = finalXp / 100
+            if skill.progress + normalizedXp < 1 then
+                skill.progress = skill.progress + normalizedXp
             else
-                I.SkillProgression.skillUsed(skillId, { skillGain = finalXp })
+                I.SkillProgression.skillLevelUp(skillId, "usage")
             end
 
             if settings.log.xpGain then
@@ -168,8 +162,11 @@ end
 local function grantTrainingPoints(groupname, key)
     if animGroupsData[groupname].stopKey ~= key then return end
 
-    local isLevitating = selfEffects:getEffect(core.magic.EFFECT_TYPE.Levitate).magnitude > 0
-    if settings.skipIfLevitating and isLevitating then return end
+    if settings.skipIfLevitating then
+        if selfEffects:getEffect(core.magic.EFFECT_TYPE.Levitate).magnitude > 0 then
+            return
+        end
+    end
 
     local animGroupData = animGroupsData[groupname]
     local animType = animGroupData.waterKey and types.Player.isSwimming(self)

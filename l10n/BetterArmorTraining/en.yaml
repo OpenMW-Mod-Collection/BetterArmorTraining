@@ -31,16 +31,6 @@ trainingPointsPerXpPayout_desc: |
   Equipped armor is checked only during the payout.
 xpPayout_name: XP Payout Size
 xpPayout_desc: How much XP you will get, across all your equipped armor classes.
-grantXpDirectly_name: Grant XP Directly
-grantXpDirectly_desc: |
-  If enabled, xp will be given directly, avoiding all other handlers, including modded ones. Predictable.
-
-  If disabled, xp will be given via an interface, applying all the vanilla and modded multipliers: character specialization bonuses, multipliers from other mods and other interactions. Unpredictable.
-carryXpExcess_name: Carry XP Excess
-carryXpExcess_desc: |
-  Has an effect only if "Grant XP Directly" is enabled.
-
-  When enabled, excess XP from leveling the skill up will be carried over.
 xpDivision_name: XP Fraction Per Armor Slot
 xpDivision_desc: |
   Total XP Payout gets divided across all armor slots based on these fractions.

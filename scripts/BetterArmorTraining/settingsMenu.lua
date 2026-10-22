@@ -106,20 +106,6 @@ I.Settings.registerGroup {
             min = 0,
         },
         {
-            key = 'grantXpDirectly',
-            name = 'grantXpDirectly_name',
-            description = 'grantXpDirectly_desc',
-            renderer = 'checkbox',
-            default = true,
-        },
-        {
-            key = 'carryXpExcess',
-            name = 'carryXpExcess_name',
-            description = 'carryXpExcess_desc',
-            renderer = 'checkbox',
-            default = true,
-        },
-        {
             key = 'xpDivision',
             name = 'xpDivision_name',
             description = 'xpDivision_desc',
